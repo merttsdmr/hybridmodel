@@ -1,0 +1,57 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Define the dimensions of the space
+x_min, x_max = 0, 100
+y_min, y_max = 0, 20
+t_max = 500
+
+# Create a grid of coordinates for the space
+x, y = np.meshgrid(np.arange(x_min, x_max + 1), np.arange(y_min, y_max + 1))
+
+# Initialize the position of a single agent
+agent_x = np.random.randint(x_min, x_max + 1)
+agent_y = np.random.randint(y_min, y_max + 1)
+
+# Create arrays to store the agent's position and squared displacements
+agent_positions = [(agent_x, agent_y)]
+X_displacements = []
+Y_displacements = []
+
+# Perform the random walk simulation for the agent
+for t in range(1, t_max + 1):
+    # Select a random neighbor and update the agent's position
+    neighbors = [(agent_x + 1, agent_y), (agent_x - 1, agent_y), (agent_x, agent_y + 1), (agent_x, agent_y - 1)]
+    new_x, new_y = neighbors[np.random.randint(4)]  # Select a random neighbor
+    
+    # Make sure the agent stays within the boundaries
+    agent_x = max(x_min, min(x_max, new_x))
+    agent_y = max(y_min, min(y_max, new_y))
+    
+    agent_positions.append((agent_x, agent_y))
+    
+    # Calculate squared displacements and store them
+    if t > 1:
+        x_disp = (agent_x - agent_positions[-2][0]) ** 2
+        y_disp = (agent_y - agent_positions[-2][1]) ** 2
+        X_displacements.append(x_disp)
+        Y_displacements.append(y_disp)
+
+# Extract x and y coordinates of the agent at each time step
+agent_x_coords, agent_y_coords = zip(*agent_positions)
+
+# Calculate cumulative displacements
+X_cumulative = np.cumsum(X_displacements)
+Y_cumulative = np.cumsum(Y_displacements)
+
+# Plot the squared displacements
+plt.figure(figsize=(10, 5))
+time_steps = range(2, t_max + 1)
+plt.plot(time_steps, X_cumulative, label='X(t)', linestyle='-')
+plt.plot(time_steps, Y_cumulative, label='Y(t)', linestyle='--')
+plt.xlabel('Time (t)')
+plt.ylabel('Cumulative Squared Displacement')
+plt.title('Squared Displacement Evolution')
+plt.legend()
+plt.grid(True)
+plt.show()
